@@ -150,18 +150,43 @@ async def live_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def reset_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    msg = update.effective_message
     user = update.effective_user
 
-    # owner-only check
-    if user is None or user.id != OWNER_ID:
+    # Strict check: Owner-only, and DM-only (just like /live)
+    if msg.chat.type != "private" or user is None or user.id != OWNER_ID:
         return
 
     data = load_data()
+    old_count = data["count"]
+    
+    # 1. Update the actual channel message to show '00' before wiping memory
+    if data.get("live_message_id"):
+        try:
+            await context.bot.edit_message_text(
+                chat_id=CHANNEL_1_ID,
+                message_id=data["live_message_id"],
+                text=build_message(0),  # Force it to build the message with 0
+                parse_mode=ParseMode.HTML,
+                reply_markup=build_keyboard(),
+                link_preview_options=LinkPreviewOptions(is_disabled=True),
+            )
+        except Exception as e:
+            log.warning("Could not reset the live post text: %s", e)
+
+    # 2. Hard reset the backend data
     data["count"] = 0
-    data["live_message_id"] = None  # Clears the active message memory too
+    data["live_message_id"] = None
     save_data(data)
     
-    await update.effective_message.reply_text("✅ All tests cleared! The QNA counter has been reset to 00.")
+    # 3. Send a detailed confirmation DM to the owner
+    await update.effective_message.reply_text(
+        f"✅ <b>𝗦𝗨𝗖𝗖𝗘𝗦𝗦: Hard Reset Complete!</b>\n\n"
+        f"📉 Previous count ({old_count}) wiped.\n"
+        f"🔄 Channel post visually reset to 00.\n"
+        f"🧹 Memory cleared. Ready for a new <code>/live</code> session!",
+        parse_mode=ParseMode.HTML
+    )
 
 
 async def on_channel_2_post(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
