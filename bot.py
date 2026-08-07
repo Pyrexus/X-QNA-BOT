@@ -149,6 +149,21 @@ async def live_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         log.error("Telegram API BadRequest: %s", e.message)
 
 
+async def reset_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    user = update.effective_user
+
+    # owner-only check
+    if user is None or user.id != OWNER_ID:
+        return
+
+    data = load_data()
+    data["count"] = 0
+    data["live_message_id"] = None  # Clears the active message memory too
+    save_data(data)
+    
+    await update.effective_message.reply_text("✅ All tests cleared! The QNA counter has been reset to 00.")
+
+
 async def on_channel_2_post(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     post = update.channel_post
     if post is None or post.chat.id != CHANNEL_2_ID:
