@@ -30,9 +30,9 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 # CONFIG — set these as environment variables (e.g. on Railway).
 # --------------------------------------------------------------------------
 BOT_TOKEN = "8834146619:AAHjkjw0Rbu_0bYAoeewtT0hGr4f7Y2eZ-E"
-OWNER_ID = 6798950954
-CHANNEL_1_ID = -1003973011793  # main channel, gets the /live post
-CHANNEL_2_ID = -1004436301107  # QNA answers channel, triggers the +1
+OWNER_ID = 6810553459
+CHANNEL_1_ID = -1003754657973  # main channel, gets the /live post
+CHANNEL_2_ID = -1004363722242  # QNA answers channel, triggers the +1
 
 NGL_LINK = "https://ngl.link/lilesh"
 QNA_ANS_LINK = "https://t.me/QNAZENITH"
