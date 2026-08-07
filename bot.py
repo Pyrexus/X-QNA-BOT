@@ -22,7 +22,6 @@ import os
 from pathlib import Path
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from aiogram.enums.button_style import ButtonStyle
 from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
@@ -107,8 +106,8 @@ def build_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         [
             [
-                InlineKeyboardButton("𝗡𝗚𝗟 𝗟𝗶𝗻𝗸 🌚", url=NGL_LINK, style=ButtonStyle.PRIMARY),
-                InlineKeyboardButton("𝗤𝗡𝗔 𝗔𝗻𝘀 🌝", url=QNA_ANS_LINK, style=ButtonStyle.PROGRESS),
+                InlineKeyboardButton("𝗡𝗚𝗟 𝗟𝗶𝗻𝗸 🌚", url=NGL_LINK, style="primary"),
+                InlineKeyboardButton("𝗤𝗡𝗔 𝗔𝗻𝘀 🌝", url=QNA_ANS_LINK, style="progress"),
             ]
         ]
     )
