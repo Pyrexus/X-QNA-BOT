@@ -23,6 +23,7 @@ from pathlib import Path
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, LinkPreviewOptions
 from telegram.constants import ParseMode
+from telegram.error import BadRequest
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 # --------------------------------------------------------------------------
@@ -123,18 +124,29 @@ async def live_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
     data = load_data()
     text = build_message(data["count"])
-    sent = await context.bot.send_message(
-        chat_id=CHANNEL_1_ID,
-        text=text,
-        parse_mode=ParseMode.HTML,
-        reply_markup=build_keyboard(),
-        link_preview_options=LinkPreviewOptions(is_disabled=True),
-    )
-    data["live_message_id"] = sent.message_id
-    save_data(data)
-    await update.effective_message.reply_text(
-        f"✅ Live post sent to channel 1. Current count: {data['count']:02d}"
-    )
+    
+    try:
+        sent = await context.bot.send_message(
+            chat_id=CHANNEL_1_ID,
+            text=text,
+            parse_mode=ParseMode.HTML,
+            reply_markup=build_keyboard(),
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
+        )
+        
+        data["live_message_id"] = sent.message_id
+        save_data(data)
+        await update.effective_message.reply_text(
+            f"✅ Live post sent to channel 1. Current count: {data['count']:02d}"
+        )
+        
+    except BadRequest as e:
+        # This will tell you EXACTLY why Telegram is rejecting the message!
+        await update.effective_message.reply_text(
+            f"❌ Telegram rejected the message!\n\nReason: <code>{e.message}</code>",
+            parse_mode=ParseMode.HTML
+        )
+        log.error("Telegram API BadRequest: %s", e.message)
 
 
 async def on_channel_2_post(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
