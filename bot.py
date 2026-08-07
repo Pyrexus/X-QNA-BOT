@@ -153,38 +153,53 @@ async def reset_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     msg = update.effective_message
     user = update.effective_user
 
-    # Strict check: Owner-only, and DM-only (just like /live)
-    if msg.chat.type != "private" or user is None or user.id != OWNER_ID:
+    # AGGRESSIVE LOGGING: Prove the bot actually saw the command
+    log.info(f"🚨 /reset command triggered by User ID: {user.id if user else 'Unknown'} in Chat Type: {msg.chat.type if msg else 'Unknown'}")
+
+    # LOUD SECURITY CHECKS
+    if msg.chat.type != "private":
+        log.warning("Reset failed: Not a private DM.")
+        await msg.reply_text("❌ The /reset command only works in my direct messages.")
+        return
+        
+    if user is None or user.id != OWNER_ID:
+        log.warning(f"Reset failed: Unauthorized user ({user.id if user else 'Unknown'}).")
+        await msg.reply_text(f"⛔ You are not authorized. Only the owner (ID: {OWNER_ID}) can reset.")
         return
 
+    # LOAD DATA
     data = load_data()
     old_count = data["count"]
     
-    # 1. Update the actual channel message to show '00' before wiping memory
+    # 1. VISUALLY RESET THE CHANNEL POST TO '00'
     if data.get("live_message_id"):
         try:
+            log.info(f"Attempting to visually reset channel post ID {data['live_message_id']}")
             await context.bot.edit_message_text(
                 chat_id=CHANNEL_1_ID,
                 message_id=data["live_message_id"],
-                text=build_message(0),  # Force it to build the message with 0
+                text=build_message(0),  # Builds with 00
                 parse_mode=ParseMode.HTML,
                 reply_markup=build_keyboard(),
                 link_preview_options=LinkPreviewOptions(is_disabled=True),
             )
+            log.info("Successfully edited channel post to 00.")
         except Exception as e:
-            log.warning("Could not reset the live post text: %s", e)
+            log.warning("Could not visually reset the live post text: %s", e)
+            await msg.reply_text(f"⚠️ Note: Could not edit the channel message (Reason: <code>{e}</code>). Proceeding with memory wipe...", parse_mode=ParseMode.HTML)
 
-    # 2. Hard reset the backend data
+    # 2. HARD RESET THE BACKEND MEMORY
     data["count"] = 0
     data["live_message_id"] = None
     save_data(data)
+    log.info("Backend data successfully wiped to 0.")
     
-    # 3. Send a detailed confirmation DM to the owner
-    await update.effective_message.reply_text(
+    # 3. CONFIRMATION DM
+    await msg.reply_text(
         f"✅ <b>𝗦𝗨𝗖𝗖𝗘𝗦𝗦: Hard Reset Complete!</b>\n\n"
         f"📉 Previous count ({old_count}) wiped.\n"
         f"🔄 Channel post visually reset to 00.\n"
-        f"🧹 Memory cleared. Ready for a new <code>/live</code> session!",
+        f"🧹 Memory cleared. Send <code>/live</code> to start a new session!",
         parse_mode=ParseMode.HTML
     )
 
@@ -229,8 +244,9 @@ def main() -> None:
 
     app = Application.builder().token(BOT_TOKEN).build()
 
-    # /live — owner-only, DM-only (check is done inside live_cmd)
+    # COMMAND HANDLERS
     app.add_handler(CommandHandler("live", live_cmd))
+    app.add_handler(CommandHandler("reset", reset_cmd))  # <-- THIS MUST BE HERE
 
     # Any new post in channel 2 -> bump counter
     app.add_handler(MessageHandler(filters.UpdateType.CHANNEL_POST, on_channel_2_post))
