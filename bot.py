@@ -21,7 +21,7 @@ import logging
 import os
 from pathlib import Path
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, LinkPreviewOptions
 from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
@@ -100,9 +100,6 @@ def build_message(count: int) -> str:
 
 
 def build_keyboard() -> InlineKeyboardMarkup:
-    # Note: Telegram inline URL buttons don't support "primary/progress" colour
-    # styles like normal app UI buttons — Bot API only gives you one flat
-    # button look. Row layout (side by side) is the only real styling lever.
     return InlineKeyboardMarkup(
         [
             [
@@ -131,7 +128,7 @@ async def live_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         text=text,
         parse_mode=ParseMode.HTML,
         reply_markup=build_keyboard(),
-        disable_web_page_preview=True,
+        link_preview_options=LinkPreviewOptions(is_disabled=True),
     )
     data["live_message_id"] = sent.message_id
     save_data(data)
@@ -156,7 +153,7 @@ async def on_channel_2_post(update: Update, context: ContextTypes.DEFAULT_TYPE) 
                 text=build_message(data["count"]),
                 parse_mode=ParseMode.HTML,
                 reply_markup=build_keyboard(),
-                disable_web_page_preview=True,
+                link_preview_options=LinkPreviewOptions(is_disabled=True),
             )
         except Exception as e:  # message deleted, not modified, etc.
             log.warning("Could not edit live post: %s", e)
