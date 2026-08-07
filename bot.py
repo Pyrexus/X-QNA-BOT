@@ -28,10 +28,10 @@ from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandl
 # --------------------------------------------------------------------------
 # CONFIG — set these as environment variables (e.g. on Railway).
 # --------------------------------------------------------------------------
-BOT_TOKEN = os.environ.get("8834146619:AAHjkjw0Rbu_0bYAoeewtT0hGr4f7Y2eZ-E", "")
-OWNER_ID = int(os.environ.get("6798950954", "0"))
-CHANNEL_1_ID = int(os.environ.get("-1003973011793", "0"))  # main channel, gets the /live post
-CHANNEL_2_ID = int(os.environ.get("-1004436301107", "0"))  # QNA answers channel, triggers the +1
+BOT_TOKEN = "8834146619:AAHjkjw0Rbu_0bYAoeewtT0hGr4f7Y2eZ-E"
+OWNER_ID = 6798950954
+CHANNEL_1_ID = -1003973011793  # main channel, gets the /live post
+CHANNEL_2_ID = -1004436301107  # QNA answers channel, triggers the +1
 
 NGL_LINK = "https://ngl.link/lilesh"
 QNA_ANS_LINK = "https://t.me/QNAZENITH"
@@ -106,8 +106,8 @@ def build_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         [
             [
-                InlineKeyboardButton("𝗡𝗚𝗟 𝗟𝗶𝗻𝗸 🌚", url=NGL_LINK),
-                InlineKeyboardButton("𝗤𝗡𝗔 𝗔𝗻𝘀 🌝", url=QNA_ANS_LINK),
+                InlineKeyboardButton("𝗡𝗚𝗟 𝗟𝗶𝗻𝗸 🌚", url=NGL_LINK, style=ButtonStyle.PRIMARY),
+                InlineKeyboardButton("𝗤𝗡𝗔 𝗔𝗻𝘀 🌝", url=QNA_ANS_LINK, style=ButtonStyle.PROGRESS),
             ]
         ]
     )
