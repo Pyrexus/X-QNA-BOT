@@ -104,8 +104,8 @@ def build_keyboard() -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(
         [
             [
-                InlineKeyboardButton("𝗡𝗚𝗟 𝗟𝗶𝗻𝗸 🌚", url=NGL_LINK),
-                InlineKeyboardButton("𝗤𝗡𝗔 𝗔𝗻𝘀 🌝", url=QNA_ANS_LINK),
+                InlineKeyboardButton("𝗡𝗚𝗟 𝗟𝗶𝗻𝗸 🌚", url=NGL_LINK, style="primary"),
+                InlineKeyboardButton("𝗤𝗡𝗔 𝗔𝗻𝘀 🌝", url=QNA_ANS_LINK, style="success"),
             ]
         ]
     )
